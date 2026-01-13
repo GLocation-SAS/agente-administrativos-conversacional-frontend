@@ -27,6 +27,7 @@ app.use((req, res, next) => {
 const PROJECT_ID = 'umng-agentes-dev';
 const LOCATION = 'global';
 const AGENT_ID = '93699bca-c7fb-40ca-bf30-ca394d60c3bc';
+const ENVIRONMENT_ID = 'cb3763f5-d44a-4fa7-8c63-591fe5b6cf6a';
 
 async function getAccessToken() {
   const keyFilePath = path.join(
@@ -52,6 +53,7 @@ app.post('/api/chat', async (req, res) => {
     const url =
       `https://dialogflow.googleapis.com/v3/projects/${PROJECT_ID}` +
       `/locations/${LOCATION}/agents/${AGENT_ID}` +
+      `/environments/${ENVIRONMENT_ID}` +
       `/sessions/${sessionId}:detectIntent`;
 
     const body = {
