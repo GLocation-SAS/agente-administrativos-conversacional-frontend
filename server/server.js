@@ -3,6 +3,15 @@ import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleAuth } from 'google-auth-library';
+import {
+  PROJECT_ID,
+  AGENT_LOCATION,
+  AGENT_ID,
+  AGENT_ENVIRONMENT_ID,
+  AGENT_LANGUAGE_CODE,
+  PORT,
+} from './environment/environment.js';
+import { validateEnvironment } from './environment/util/validateEnvironment.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,25 +33,14 @@ app.use((req, res, next) => {
   res.sendFile(path.join(homePath, 'index.html'));
 });
 
-const PROJECT_ID = 'umng-agentes-dev';
-const LOCATION = 'global';
-const AGENT_ID = '93699bca-c7fb-40ca-bf30-ca394d60c3bc';
-const ENVIRONMENT_ID = 'cb3763f5-d44a-4fa7-8c63-591fe5b6cf6a';
-
 async function getAccessToken() {
-  const keyFilePath = path.join(
-    __dirname,
-    '../credentials/service-account.json'
-  );
-
   const auth = new GoogleAuth({
-    keyFile: keyFilePath,
     scopes: ['https://www.googleapis.com/auth/cloud-platform'],
   });
 
   const client = await auth.getClient();
-  const token = await client.getAccessToken();
-  return token.token;
+  const { token } = await client.getAccessToken();
+  return token;
 }
 
 app.post('/api/chat', async (req, res) => {
@@ -52,14 +50,14 @@ app.post('/api/chat', async (req, res) => {
 
     const url =
       `https://dialogflow.googleapis.com/v3/projects/${PROJECT_ID}` +
-      `/locations/${LOCATION}/agents/${AGENT_ID}` +
-      `/environments/${ENVIRONMENT_ID}` +
+      `/locations/${AGENT_LOCATION}/agents/${AGENT_ID}` +
+      `/environments/${AGENT_ENVIRONMENT_ID}` +
       `/sessions/${sessionId}:detectIntent`;
 
     const body = {
       queryInput: {
         text: { text },
-        languageCode: 'es',
+        languageCode: AGENT_LANGUAGE_CODE,
       },
     };
 
@@ -85,7 +83,11 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
+if (!validateEnvironment()) {
+  console.error('Servidor no iniciado: variables de entorno inválidas');
+  process.exit(1);
+}
+
 app.listen(PORT, () => {
   console.log('Servidor iniciado en PUERTO ' + PORT);
 });
