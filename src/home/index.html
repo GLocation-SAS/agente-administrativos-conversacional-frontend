@@ -17,7 +17,7 @@
   <body>
     <div class="gov-bar">
       <img src="logos/gov.svg" alt="gov.co" class="gov-logo" />
-      <img src="buttons/btn-idioma.svg" alt="btn-idioma" class="lang-toggle" />
+      <!-- <img src="buttons/btn-idioma.svg" alt="btn-idioma" class="lang-toggle" /> -->
     </div>
 
     <div class="viewport-container">
@@ -45,18 +45,26 @@
           </header>
 
           <div class="chat-card">
+            <button class="new-conversation-btn" onclick="clearChat()">
+              <img class="new-conv-icon" src="icons/plus.svg" alt="" />
+              Nueva Conversación
+            </button>
+
             <div class="chat-header">
-              <div class="chat-header-icon">
-                <img
-                  c
-                  src="icons/user-message.svg"
-                  class="chat-icon"
-                  alt="icon"
-                />
-              </div>
               <div class="chat-header-text">
-                <h2>¡Hola colaborador!</h2>
-                <p>¿En qué puedo ayudarte hoy?</p>
+                <div class="chat-header-container">
+                  <div class="chat-header-icon">
+                    <img
+                      src="icons/user-message.svg"
+                      class="chat-icon"
+                      alt="icon"
+                    />
+                  </div>
+                  <h2>¡Hola colaborador!</h2>
+                </div>
+                <div>
+                  <p>¿En qué puedo ayudarte hoy?</p>
+                </div>
               </div>
             </div>
 
@@ -129,7 +137,8 @@
               placeholder="Ingresa tu consulta aquí…"
             />
             <button class="send-btn" onclick="send()">
-              <img src="buttons/boton_enviar_chat.svg" alt="Enviar" />
+              <img class="send-icon" src="buttons/boton_enviar_chat.svg" alt="Enviar" />
+              <img class="loader-icon" src="icons/loader.svg" alt="Cargando" />
             </button>
           </div>
         </div>
