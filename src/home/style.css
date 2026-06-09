@@ -165,11 +165,18 @@ body {
   height: 410px;
   width: 100%;
   max-width: none;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
   box-sizing: border-box;
   position: relative;
+}
+
+.chat-card-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .chat-header {
@@ -553,7 +560,6 @@ body {
     width: 100%;
     max-width: none;
     padding: 26px;
-    overflow: hidden;
   }
 
   .chat-header {
@@ -575,7 +581,7 @@ body {
   }
 
   .new-conversation-btn {
-    top: 0;
+    top: -14px;
     height: 30px;
     padding: 0 14px;
     font-size: 11px;
@@ -818,7 +824,7 @@ body {
 .new-conversation-btn {
   display: none;
   position: absolute;
-  top: 0;
+  top: -19px;
   right: 0;
   height: 38px;
   background: rgba(252, 103, 0, 0.75);
@@ -986,7 +992,7 @@ body {
   .chat-card {
     padding: 20px;
     height: 500px;
-    max-height: 10vh;
+    max-height: none;
     min-height: 400px;
     max-width: 100%;
   }
@@ -1107,6 +1113,8 @@ body {
   .chat-input-area {
     max-width: 100%;
     padding: 4px 8px 4px 15px;
+    position: relative;
+    z-index: 1;
   }
 
   .chat-input-area input {
