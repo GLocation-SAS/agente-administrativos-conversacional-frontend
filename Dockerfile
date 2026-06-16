@@ -9,7 +9,6 @@ RUN npm ci --only=production
 COPY server ./server
 COPY src ./src
 COPY public ./public
-COPY credentials ./credentials
 
 ENV PORT=8080
 EXPOSE 8080

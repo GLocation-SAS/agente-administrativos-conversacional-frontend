@@ -8,6 +8,7 @@ marked.setOptions({ renderer: renderer });
 
 let hasMessages = false;
 let quickQuestions = {};
+let requestId = 0;
 
 fetch('../quick-questions/quick-questions.json')
   .then((res) => res.json())
@@ -19,20 +20,35 @@ fetch('../quick-questions/quick-questions.json')
   });
 
 document.getElementById('msg').addEventListener('keypress', function (e) {
-  if (e.key === 'Enter') send();
+  if (e.key === 'Enter') {
+    const sendBtn = document.querySelector('.send-btn');
+    if (!sendBtn.disabled) {
+      send();
+    }
+  }
 });
 
-const sessionId =
+let sessionId =
   'session-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
 
 async function send() {
   const text = document.getElementById('msg').value.trim();
   if (!text) return;
 
+  const sendBtn = document.querySelector('.send-btn');
+
+  if (sendBtn.disabled) return;
+
+  const currentId = ++requestId;
+
+  sendBtn.disabled = true;
+  sendBtn.classList.add('loading');
+
   if (!hasMessages) {
     document.querySelector('.chat-header').style.display = 'none';
     document.querySelector('.sugerencias').style.display = 'none';
     document.getElementById('messages').classList.add('full-height');
+    document.querySelector('.new-conversation-btn').classList.add('visible');
     hasMessages = true;
   }
 
@@ -48,18 +64,37 @@ async function send() {
       body: JSON.stringify({ text, sessionId }),
     });
   } catch (err) {
+    if (currentId !== requestId) {
+      showTyping(false);
+      return;
+    }
+
     showTyping(false);
-    addMessage('❌ No se pudo conectar con el servidor', 'bot');
+    addMessage('No se pudo conectar con el servidor', 'bot');
+    sendBtn.disabled = false;
+    sendBtn.classList.remove('loading');
     return;
   }
 
   if (!res.ok) {
+    if (currentId !== requestId) {
+      showTyping(false);
+      return;
+    }
+
     showTyping(false);
-    addMessage('❌ Error ' + res.status, 'bot');
+    addMessage('Error ' + res.status, 'bot');
+    sendBtn.disabled = false;
+    sendBtn.classList.remove('loading');
     return;
   }
 
   const data = await res.json();
+
+  if (currentId !== requestId) {
+    showTyping(false);
+    return;
+  }
 
   showTyping(false);
 
@@ -72,6 +107,9 @@ async function send() {
   }
 
   addMessage(botText, 'bot');
+
+  sendBtn.disabled = false;
+  sendBtn.classList.remove('loading');
 }
 
 function addMessage(text, sender) {
@@ -120,4 +158,21 @@ function sendQuick(tag) {
     document.getElementById('msg').value = tag;
   }
   send();
+}
+
+function clearChat() {
+  requestId++;
+  sessionId =
+    'session-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
+  showTyping(false);
+  const sendBtn = document.querySelector('.send-btn');
+  sendBtn.disabled = false;
+  sendBtn.classList.remove('loading');
+  document.getElementById('messages').innerHTML = '';
+  document.querySelector('.chat-header').style.display = 'flex';
+  document.querySelector('.sugerencias').style.display = 'block';
+  document.getElementById('messages').classList.remove('full-height');
+  document.querySelector('.new-conversation-btn').classList.remove('visible');
+  document.getElementById('msg').value = '';
+  hasMessages = false;
 }
