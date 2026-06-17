@@ -276,9 +276,8 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px 12px;
-  max-width: 600px;
+  max-width: 850px;
   margin: 0 auto;
-  row-gap: 16px;
 }
 
 .tag {
@@ -733,7 +732,6 @@ body {
   .tags {
     max-width: 750px;
     gap: 10px 15px;
-    row-gap: 20px;
   }
 
   .tag {

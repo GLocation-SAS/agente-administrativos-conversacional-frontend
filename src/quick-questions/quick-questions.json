@@ -1,10 +1,12 @@
 {
   "¿Qué son las cesantías?": ["¿Qué son las cesantías?"],
-  "¿En qué puedo usar las cesantías?": ["¿En qué puedo usar las cesantías?"],
-  "¿Cuál es el objetivo de la capacitación para apoyo en educación formal?": [
-    "¿Cuál es el objetivo de la capacitación para apoyo en educación formal?"
+  "Necesito capacitarme, ¿qué opciones tengo?": [
+    "Necesito capacitarme, ¿qué opciones tengo?"
   ],
-  "¿Cuál es el alcance de la capacitación en Desarrollo Humano?": [
-    "¿Cuál es el alcance de la capacitación para el Trabajo y el Desarrollo Humano?"
+  "Quiero generar mi certificado laboral": [
+    "Quiero generar mi certificado laboral"
+  ],
+  "Quiero averiguar el estado del retiro de mis cesantías": [
+    "Quiero averiguar el estado del retiro de mis cesantías"
   ]
 }
