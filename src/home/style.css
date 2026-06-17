@@ -172,6 +172,13 @@ body {
   position: relative;
 }
 
+.chat-card-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .chat-header {
   display: flex;
   flex-direction: column;
@@ -430,6 +437,8 @@ body {
   max-width: 1300px;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .chat-input-area input {
@@ -983,7 +992,7 @@ body {
   .chat-card {
     padding: 20px;
     height: 500px;
-    max-height: 10vh;
+    max-height: none;
     min-height: 400px;
     max-width: 100%;
   }
@@ -1104,6 +1113,8 @@ body {
   .chat-input-area {
     max-width: 100%;
     padding: 4px 8px 4px 15px;
+    position: relative;
+    z-index: 1;
   }
 
   .chat-input-area input {
