@@ -31,6 +31,42 @@ document.getElementById('msg').addEventListener('keypress', function (e) {
 let sessionId =
   'session-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
 
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1200;
+
+const FALLBACK_MESSAGE =
+  'Lo siento, no pude obtener una respuesta en este momento. ' +
+  '¿Podrías intentarlo de nuevo en unos instantes?';
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function extractBotText(reply) {
+  if (!reply || reply.length === 0) return null;
+  for (const msg of reply) {
+    if (msg.text?.text?.length > 0) return msg.text.text[0];
+  }
+  return null;
+}
+
+async function fetchAgentReply(text, sessionId) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, sessionId }),
+  });
+
+  if (!res.ok) {
+    const err = new Error('HTTP_ERROR');
+    err.status = res.status;
+    throw err;
+  }
+
+  const data = await res.json();
+  return data.reply;
+}
+
 async function send() {
   const text = document.getElementById('msg').value.trim();
   if (!text) return;
@@ -56,40 +92,58 @@ async function send() {
   document.getElementById('msg').value = '';
   showTyping(true);
 
-  let res;
-  try {
-    res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, sessionId }),
-    });
-  } catch (err) {
+  let botText = null;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     if (currentId !== requestId) {
       showTyping(false);
       return;
     }
 
-    showTyping(false);
-    addMessage('No se pudo conectar con el servidor', 'bot');
-    sendBtn.disabled = false;
-    sendBtn.classList.remove('loading');
-    return;
-  }
-
-  if (!res.ok) {
-    if (currentId !== requestId) {
-      showTyping(false);
-      return;
+    if (attempt > 0) {
+      await sleep(RETRY_DELAY_MS);
+      if (currentId !== requestId) {
+        showTyping(false);
+        return;
+      }
     }
 
-    showTyping(false);
-    addMessage('Error ' + res.status, 'bot');
-    sendBtn.disabled = false;
-    sendBtn.classList.remove('loading');
-    return;
-  }
+    try {
+      const reply = await fetchAgentReply(text, sessionId);
+      botText = extractBotText(reply);
+      if (botText) break;
+    } catch (err) {
+      if (err.message === 'HTTP_ERROR') {
+        if (currentId !== requestId) {
+          showTyping(false);
+          return;
+        }
+        showTyping(false);
+        addMessage(
+          `Ocurrió un error al contactar al servidor (${err.status}). Intenta de nuevo más tarde.`,
+          'bot',
+        );
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('loading');
+        return;
+      }
 
-  const data = await res.json();
+      if (attempt === MAX_RETRIES) {
+        if (currentId !== requestId) {
+          showTyping(false);
+          return;
+        }
+        showTyping(false);
+        addMessage(
+          'No pude conectarme al servidor. Verifica tu conexión e intenta de nuevo.',
+          'bot',
+        );
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('loading');
+        return;
+      }
+    }
+  }
 
   if (currentId !== requestId) {
     showTyping(false);
@@ -97,17 +151,7 @@ async function send() {
   }
 
   showTyping(false);
-
-  let botText = 'Sin respuesta del agente';
-  if (data.reply && data.reply.length > 0) {
-    const msg = data.reply[0];
-    if (msg.text?.text?.length > 0) {
-      botText = msg.text.text[0];
-    }
-  }
-
-  addMessage(botText, 'bot');
-
+  addMessage(botText ?? FALLBACK_MESSAGE, 'bot');
   sendBtn.disabled = false;
   sendBtn.classList.remove('loading');
 }
